@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ReplyIQ — Chat Quality Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ── TOP NAV ─────────────────────────────────────────────────────────────── -->
+<nav class="topnav">
+  <div class="nav-brand">
+    <span class="brand-icon">⬡</span>
+    <span class="brand-name">ReplyIQ</span>
+    <span class="brand-tag">Customer Support Intelligence</span>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="darkToggle" title="Toggle dark mode">☾</button>
+    <span class="agent-badge">Agent: Live Session</span>
+  </div>
+</nav>
+
+<!-- ── MAIN LAYOUT ──────────────────────────────────────────────────────────── -->
+<main class="workspace">
+
+  <!-- LEFT — Chat Input Panel -->
+  <section class="panel panel-input">
+    <div class="panel-header">
+      <span class="panel-label">✍ Compose Reply</span>
+      <div class="live-indicator"><span class="pulse"></span>Live Analysis</div>
+    </div>
+
+    <!-- Customer message (read-only simulation) -->
+    <div class="customer-bubble-wrap">
+      <div class="avatar avatar-customer">C</div>
+      <div class="customer-bubble">
+        <span class="bubble-name">Customer</span>
+        <p id="customerMsg">Your order #48291 hasn't arrived yet. It's been 10 days and this is completely unacceptable. I want a refund NOW!</p>
+      </div>
+    </div>
+
+    <!-- Agent reply area -->
+    <div class="agent-compose">
+      <div class="avatar avatar-agent">A</div>
+      <div class="compose-box">
+        <div class="compose-header">
+          <span>Agent Reply</span>
+          <span id="wordCount" class="word-count">0 words</span>
+        </div>
+        <textarea
+          id="agentInput"
+          placeholder="Type your reply here… ReplyIQ will analyse it in real-time."
+          rows="6"
+          spellcheck="false"
+        ></textarea>
+
+        <!-- Highlighted overlay for inline error marks -->
+        <div id="highlightOverlay" class="highlight-overlay" aria-hidden="true"></div>
+
+        <div class="compose-footer">
+          <div id="typingStatus" class="typing-status"></div>
+          <div class="compose-actions">
+            <button class="btn-secondary" id="clearBtn">Clear</button>
+            <button class="btn-primary" id="analyseBtn">
+              <span class="btn-icon">⚡</span> Analyse Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sample prompts -->
+    <div class="sample-prompts">
+      <span class="sample-label">Try a sample:</span>
+      <button class="sample-btn" data-sample="ok ill check ur order">ok ill check ur order</button>
+      <button class="sample-btn" data-sample="your order is delayed">your order is delayed</button>
+      <button class="sample-btn" data-sample="I apologize for the inconvenience. Your order #48291 has been delayed due to high demand. I will escalate this immediately and arrange a full refund within 24 hours.">Professional example</button>
+    </div>
+  </section>
+
+  <!-- RIGHT — Analysis Panel -->
+  <section class="panel panel-analysis">
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard">
+      <div class="score-ring-wrap">
+        <svg class="score-ring" viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52"
+            stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        </svg>
+        <div class="score-center">
+          <span id="scoreNum" class="score-number">—</span>
+          <span class="score-denom">/10</span>
+        </div>
+      </div>
+      <div class="score-meta">
+        <div id="scoreLabel" class="score-label">Awaiting input…</div>
+        <div class="score-bars">
+          <div class="score-bar-row">
+            <span>Grammar</span>
+            <div class="bar-track"><div class="bar-fill grammar-fill" id="grammarBar"></div></div>
+            <span id="grammarPts" class="bar-pts">—</span>
+          </div>
+          <div class="score-bar-row">
+            <span>Empathy</span>
+            <div class="bar-track"><div class="bar-fill empathy-fill" id="empathyBar"></div></div>
+            <span id="empathyPts" class="bar-pts">—</span>
+          </div>
+          <div class="score-bar-row">
+            <span>Length</span>
+            <div class="bar-track"><div class="bar-fill length-fill" id="lengthBar"></div></div>
+            <span id="lengthPts" class="bar-pts">—</span>
+          </div>
+          <div class="score-bar-row">
+            <span>Tone</span>
+            <div class="bar-track"><div class="bar-fill tone-fill" id="toneBar"></div></div>
+            <span id="tonePts" class="bar-pts">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Tags -->
+    <div class="tag-row" id="tagRow">
+      <div class="tag tag-tone" id="tagTone">Tone: —</div>
+      <div class="tag tag-empathy" id="tagEmpathy">Empathy: —</div>
+      <div class="tag tag-errors" id="tagErrors">Errors: —</div>
+    </div>
+
+    <!-- Improved Response Box -->
+    <div class="improved-card" id="improvedCard">
+      <div class="improved-header">
+        <span class="improved-title">✦ Improved Response</span>
+        <button class="btn-copy" id="copyBtn" title="Copy improved response">
+          <span id="copyIcon">⎘</span> Copy
+        </button>
+      </div>
+      <div id="improvedText" class="improved-body">
+        Your enhanced response will appear here as you type…
+      </div>
+      <button class="btn-apply" id="applyBtn">↩ Apply to Reply</button>
+    </div>
+
+    <!-- Grammar Errors List -->
+    <div class="errors-card" id="errorsCard">
+      <div class="errors-header">
+        <span class="errors-title">⚠ Detected Issues</span>
+        <span class="errors-count" id="errorsCount">0</span>
+      </div>
+      <ul id="errorsList" class="errors-list">
+        <li class="error-empty">No issues detected yet.</li>
+      </ul>
+    </div>
+
+    <!-- Empathy Tip -->
+    <div class="empathy-card" id="empathyCard" style="display:none">
+      <div class="empathy-icon">💬</div>
+      <div>
+        <div class="empathy-title">Empathy Suggestion</div>
+        <div id="empathyText" class="empathy-body"></div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- Toast notification -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
