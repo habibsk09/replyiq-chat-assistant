@@ -89,7 +89,9 @@ Full analysis — call on demand.
 ```json
 { "text": "ok ill check ur order" }
 ```
+## 📸 Preview
 
+![App Screenshot](screenshot.png)
 **Response**
 ```json
 {
